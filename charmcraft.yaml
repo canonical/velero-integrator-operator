@@ -1,0 +1,71 @@
+# Copyright 2026 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+name: velero-integrator
+type: charm
+title: Velero Integrator
+
+summary: Integrator charm for managing scheduled backups with Velero.
+
+description: |
+  The Velero Integrator Charm acts as middleware between target applications
+  and the Velero Operator, enabling scheduled backup management.
+
+  It receives backup specifications from target applications via the
+  k8s-backup-target relation and forwards them to Velero Operator via
+  the velero-backup relation, adding schedule configuration.
+
+  This charm simplifies backup orchestration by separating "what to backup"
+  (defined by target apps) from "when to backup" (defined by operators).
+
+links:
+  issues:
+  - https://github.com/canonical/velero-integrator-operator/issues
+  source:
+  - https://github.com/canonical/velero-integrator-operator
+
+platforms:
+  ubuntu@24.04:amd64:
+
+assumes:
+  - k8s-api
+
+config:
+  options:
+    schedule:
+      description: |
+        Cron expression for scheduled backups (e.g., "0 2 * * *" for daily at 2 AM).
+        Leave empty for manual backup mode.
+      default: ""
+      type: string
+    paused:
+      description: |
+        Pause or resume scheduled backups. When true, the schedule is paused.
+      default: false
+      type: boolean
+    skip-immediately:
+      description: |
+        Skip immediate backup when a schedule is created.
+        By default, Velero creates a backup immediately when a schedule is created.
+      default: false
+      type: boolean
+    use-owner-references-in-backup:
+      description: |
+        Enable garbage collection. When true, backups created by the schedule
+        will be deleted when the schedule is deleted.
+      default: false
+      type: boolean
+
+parts:
+  charm:
+    source: .
+
+peers:
+  status-peers:
+    interface: velero_integrator_peers
+
+provides:
+  k8s-backup-target:
+    interface: k8s_backup_target
+  velero-backup:
+    interface: velero_backup_config
