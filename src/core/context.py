@@ -4,7 +4,7 @@
 
 """Charm Context definition and parsing logic."""
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, cast
 
 from ops import Object, Relation
 from pydantic import ValidationError
@@ -28,17 +28,12 @@ class Context(Object, WithLogging):
         super().__init__(charm, "charm_context")
         self.charm = charm
 
-    def _get_schedule(self) -> Optional[str]:
-        """Get schedule config value as string or None."""
-        schedule = self.charm.config.get("schedule")
-        return str(schedule) if schedule else None
-
     @property
     def config(self) -> Optional[CharmConfig]:
         """Return validated charm configuration or None if invalid."""
         try:
             return CharmConfig(
-                schedule=self._get_schedule(),
+                schedule=cast(Optional[str], self.charm.config.get("schedule")),
                 paused=bool(self.charm.config.get("paused")),
                 skip_immediately=bool(self.charm.config.get("skip-immediately")),
                 use_owner_references_in_backup=bool(
@@ -53,7 +48,7 @@ class Context(Object, WithLogging):
         """Return list of configuration validation error fields."""
         try:
             CharmConfig(
-                schedule=self._get_schedule(),
+                schedule=cast(Optional[str], self.charm.config.get("schedule")),
                 paused=bool(self.charm.config.get("paused")),
                 skip_immediately=bool(self.charm.config.get("skip-immediately")),
                 use_owner_references_in_backup=bool(
