@@ -3,6 +3,7 @@
 
 """Test fixtures for unit tests."""
 
+import json
 import sys
 from pathlib import Path
 
@@ -32,6 +33,19 @@ METADATA = {
 
 # Build config schema from charmcraft.yaml
 CONFIG = {"options": CHARMCRAFT.get("config", {}).get("options", {})}
+
+
+def backup_target_app_data(
+    app="target-app", model="test-model", relation_name="backup", spec=None
+):
+    """Build remote_app_data in ProviderAppData format (as relation.save produces)."""
+    if spec is None:
+        spec = {"include_namespaces": ["test-namespace"]}
+    return {
+        "backup_targets": json.dumps(
+            [{"app": app, "model": model, "relation_name": relation_name, "spec": spec}]
+        ),
+    }
 
 
 @pytest.fixture

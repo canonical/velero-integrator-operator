@@ -5,6 +5,7 @@
 
 from unittest.mock import MagicMock, PropertyMock, patch
 
+from conftest import backup_target_app_data
 from ops import testing
 from scenario import Relation
 
@@ -21,10 +22,7 @@ class TestGeneralEvents:
         k8s_relation = Relation(
             endpoint=K8S_BACKUP_TARGET_RELATION,
             remote_app_name="target-app",
-            remote_app_data={
-                "app": "target-app",
-                "spec": '{"include_namespaces": ["test"]}',
-            },
+            remote_app_data=backup_target_app_data(),
         )
 
         state_out = ctx.run(
@@ -56,10 +54,7 @@ class TestGeneralEvents:
         k8s_relation = Relation(
             endpoint=K8S_BACKUP_TARGET_RELATION,
             remote_app_name="target-app",
-            remote_app_data={
-                "app": "target-app",
-                "spec": '{"include_namespaces": ["test"]}',
-            },
+            remote_app_data=backup_target_app_data(),
         )
 
         state_out = ctx.run(
@@ -91,10 +86,7 @@ class TestGeneralEvents:
         k8s_relation = Relation(
             endpoint=K8S_BACKUP_TARGET_RELATION,
             remote_app_name="target-app",
-            remote_app_data={
-                "app": "target-app",
-                "spec": '{"include_namespaces": ["test"]}',
-            },
+            remote_app_data=backup_target_app_data(),
         )
 
         state_out = ctx.run(
@@ -117,10 +109,7 @@ class TestK8sBackupTargetEvents:
         k8s_relation = Relation(
             endpoint=K8S_BACKUP_TARGET_RELATION,
             remote_app_name="target-app",
-            remote_app_data={
-                "app": "target-app",
-                "spec": '{"include_namespaces": ["test"]}',
-            },
+            remote_app_data=backup_target_app_data(),
         )
 
         state_out = ctx.run(
@@ -139,10 +128,7 @@ class TestK8sBackupTargetEvents:
         k8s_relation = Relation(
             endpoint=K8S_BACKUP_TARGET_RELATION,
             remote_app_name="target-app",
-            remote_app_data={
-                "app": "target-app",
-                "spec": '{"include_namespaces": ["test"]}',
-            },
+            remote_app_data=backup_target_app_data(),
         )
 
         state_out = ctx.run(
@@ -161,10 +147,7 @@ class TestK8sBackupTargetEvents:
         k8s_relation = Relation(
             endpoint=K8S_BACKUP_TARGET_RELATION,
             remote_app_name="target-app",
-            remote_app_data={
-                "app": "target-app",
-                "spec": '{"include_namespaces": ["test"]}',
-            },
+            remote_app_data=backup_target_app_data(),
         )
 
         state_out = ctx.run(
@@ -186,10 +169,7 @@ class TestK8sBackupTargetEvents:
         k8s_relation = Relation(
             endpoint=K8S_BACKUP_TARGET_RELATION,
             remote_app_name="target-app",
-            remote_app_data={
-                "app": "target-app",
-                "spec": '{"include_namespaces": ["test"]}',
-            },
+            remote_app_data=backup_target_app_data(),
         )
 
         state_out = ctx.run(
@@ -209,10 +189,7 @@ class TestK8sBackupTargetEvents:
         k8s_relation = Relation(
             endpoint=K8S_BACKUP_TARGET_RELATION,
             remote_app_name="target-app",
-            remote_app_data={
-                "app": "target-app",
-                "spec": '{"include_namespaces": ["test"]}',
-            },
+            remote_app_data=backup_target_app_data(),
         )
 
         state_out = ctx.run(
@@ -237,10 +214,7 @@ class TestVeleroBackupEvents:
         k8s_relation = Relation(
             endpoint=K8S_BACKUP_TARGET_RELATION,
             remote_app_name="target-app",
-            remote_app_data={
-                "app": "target-app",
-                "spec": '{"include_namespaces": ["test"]}',
-            },
+            remote_app_data=backup_target_app_data(),
         )
 
         state_out = ctx.run(
@@ -259,10 +233,7 @@ class TestVeleroBackupEvents:
         k8s_relation = Relation(
             endpoint=K8S_BACKUP_TARGET_RELATION,
             remote_app_name="target-app",
-            remote_app_data={
-                "app": "target-app",
-                "spec": '{"include_namespaces": ["test"]}',
-            },
+            remote_app_data=backup_target_app_data(),
         )
 
         state_out = ctx.run(
@@ -283,10 +254,7 @@ class TestVeleroBackupEvents:
         k8s_relation = Relation(
             endpoint=K8S_BACKUP_TARGET_RELATION,
             remote_app_name="target-app",
-            remote_app_data={
-                "app": "target-app",
-                "spec": '{"include_namespaces": ["test"]}',
-            },
+            remote_app_data=backup_target_app_data(),
         )
 
         state_out = ctx.run(
@@ -321,10 +289,7 @@ class TestVeleroBackupEvents:
         k8s_relation = Relation(
             endpoint=K8S_BACKUP_TARGET_RELATION,
             remote_app_name="target-app",
-            remote_app_data={
-                "app": "target-app",
-                "spec": '{"include_namespaces": ["test"]}',
-            },
+            remote_app_data=backup_target_app_data(),
         )
 
         state_out = ctx.run(
@@ -345,10 +310,7 @@ class TestVeleroBackupEvents:
         k8s_relation = Relation(
             endpoint=K8S_BACKUP_TARGET_RELATION,
             remote_app_name="target-app",
-            remote_app_data={
-                "app": "target-app",
-                "spec": '{"include_namespaces": ["test"]}',
-            },
+            remote_app_data=backup_target_app_data(),
         )
 
         state_out = ctx.run(
@@ -372,18 +334,16 @@ class TestMultipleBackupTargets:
         k8s_relation1 = Relation(
             endpoint=K8S_BACKUP_TARGET_RELATION,
             remote_app_name="app1",
-            remote_app_data={
-                "app": "app1",
-                "spec": '{"include_namespaces": ["ns1"]}',
-            },
+            remote_app_data=backup_target_app_data(
+                app="app1", spec={"include_namespaces": ["ns1"]}
+            ),
         )
         k8s_relation2 = Relation(
             endpoint=K8S_BACKUP_TARGET_RELATION,
             remote_app_name="app2",
-            remote_app_data={
-                "app": "app2",
-                "spec": '{"include_namespaces": ["ns2"]}',
-            },
+            remote_app_data=backup_target_app_data(
+                app="app2", spec={"include_namespaces": ["ns2"]}
+            ),
         )
 
         state_out = ctx.run(

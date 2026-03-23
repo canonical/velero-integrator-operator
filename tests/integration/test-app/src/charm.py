@@ -7,9 +7,9 @@
 import logging
 
 import ops
-from charms.k8s_backup_libs.v0.backup_target import (
-    BackupTargetProvider,
-    BackupTargetSpec,
+from charmlibs.interfaces.k8s_backup_target import (
+    K8sBackupTargetProvider,
+    K8sBackupTargetSpec,
 )
 
 logger = logging.getLogger(__name__)
@@ -23,10 +23,10 @@ class TestAppCharm(ops.CharmBase):
     def __init__(self, *args):
         super().__init__(*args)
 
-        self._backup_provider = BackupTargetProvider(
+        self._backup_provider = K8sBackupTargetProvider(
             self,
             RELATION_NAME,
-            spec=BackupTargetSpec(
+            spec=K8sBackupTargetSpec(
                 include_namespaces=[str(self.config["namespace"])],
                 include_resources=["deployments", "configmaps", "secrets"],
                 ttl=str(self.config["ttl"]),

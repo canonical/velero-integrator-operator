@@ -6,6 +6,8 @@
 
 from typing import TYPE_CHECKING, Optional, cast
 
+import ops
+from charmlibs.interfaces.k8s_backup_target._schema import ProviderAppData  # noqa: PLC2701
 from ops import Object, Relation
 from pydantic import ValidationError
 
@@ -89,10 +91,24 @@ class Context(Object, WithLogging):
         for relation in self.k8s_backup_relations:
             if not relation.app:
                 continue
-            remote_data = dict(relation.data.get(relation.app, {}))
-            target = BackupTargetInfo.from_relation_data(
-                remote_data, relation, self.charm.model.name
-            )
-            if target:
-                targets.append(target)
+            try:
+                provider_data = relation.load(ProviderAppData, relation.app)
+            except (ops.RelationDataError, ValueError) as e:
+                self.logger.warning(
+                    "Failed to load provider data from relation %s (app=%s): %s",
+                    relation.name,
+                    relation.app,
+                    e,
+                )
+                continue
+            for entry in provider_data.backup_targets:
+                targets.append(
+                    BackupTargetInfo(
+                        spec=entry.spec,
+                        app_name=entry.app,
+                        relation_name=entry.relation_name,
+                        model_name=entry.model,
+                        relation=relation,
+                    )
+                )
         return targets
