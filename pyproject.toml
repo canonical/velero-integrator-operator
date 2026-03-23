@@ -108,6 +108,14 @@ optional = true
 [tool.poetry.group.integration.dependencies]
 pytest = "^8.3.3"
 jubilant = "^1.7.0"
+boto3 = "^1.35.0"
+lightkube = "^0.15.0"
+# httpx 0.28+ has a regression where verify=<str> returns early from
+# create_ssl_context() without loading the client certificate from cert=...,
+# breaking lightkube's client-certificate auth against K8s API servers.
+# See: https://github.com/encode/httpx/discussions/3459
+httpx = ">=0.24.0,<0.28"
+tenacity = "^9.0.0"
 
 
 [build-system]
