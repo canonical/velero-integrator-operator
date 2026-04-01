@@ -5,6 +5,7 @@
 
 from unittest.mock import MagicMock, PropertyMock, patch
 
+from conftest import backup_target_app_data
 from ops import testing
 from scenario import Relation
 
@@ -82,10 +83,7 @@ def test_k8s_backup_relations_returns_list(ctx, peer_relation):
     k8s_relation = Relation(
         endpoint=K8S_BACKUP_TARGET_RELATION,
         remote_app_name="target-app",
-        remote_app_data={
-            "app": "target-app",
-            "spec": '{"include_namespaces": ["test"]}',
-        },
+        remote_app_data=backup_target_app_data(spec={"include_namespaces": ["test"]}),
     )
 
     state_out = ctx.run(
@@ -136,7 +134,7 @@ def test_has_k8s_backup_relation_true(ctx, peer_relation):
     k8s_relation = Relation(
         endpoint=K8S_BACKUP_TARGET_RELATION,
         remote_app_name="target-app",
-        remote_app_data={"spec": '{"include_namespaces": ["test"]}'},
+        remote_app_data=backup_target_app_data(spec={"include_namespaces": ["test"]}),
     )
 
     state_out = ctx.run(
@@ -173,12 +171,7 @@ def test_get_backup_targets_returns_valid_targets(ctx, peer_relation):
     k8s_relation = Relation(
         endpoint=K8S_BACKUP_TARGET_RELATION,
         remote_app_name="target-app",
-        remote_app_data={
-            "app": "target-app",
-            "model": "test-model",
-            "relation_name": "backup",
-            "spec": '{"include_namespaces": ["test-namespace"]}',
-        },
+        remote_app_data=backup_target_app_data(),
     )
 
     state_out = ctx.run(
@@ -195,15 +188,12 @@ def test_get_backup_targets_returns_valid_targets(ctx, peer_relation):
 
 
 def test_get_backup_targets_skips_invalid_spec(ctx, peer_relation):
-    """Test get_backup_targets skips relations with invalid spec JSON."""
+    """Test get_backup_targets skips relations with invalid data."""
     velero_relation = Relation(endpoint=VELERO_BACKUP_RELATION)
     k8s_relation = Relation(
         endpoint=K8S_BACKUP_TARGET_RELATION,
         remote_app_name="target-app",
-        remote_app_data={
-            "app": "target-app",
-            "spec": "invalid-json{",
-        },
+        remote_app_data={"backup_targets": "invalid-json{"},
     )
 
     state_out = ctx.run(
@@ -220,16 +210,37 @@ def test_get_backup_targets_skips_invalid_spec(ctx, peer_relation):
     assert "spec" not in velero_rel_out.local_app_data
 
 
-def test_get_backup_targets_skips_missing_spec(ctx, peer_relation):
-    """Test get_backup_targets skips relations without spec field."""
+def test_get_backup_targets_skips_invalid_entry_structure(ctx, peer_relation):
+    """Test get_backup_targets skips relations with valid JSON but invalid entry schema."""
+    import json
+
     velero_relation = Relation(endpoint=VELERO_BACKUP_RELATION)
     k8s_relation = Relation(
         endpoint=K8S_BACKUP_TARGET_RELATION,
         remote_app_name="target-app",
-        remote_app_data={
-            "app": "target-app",
-            # No 'spec' field
-        },
+        remote_app_data={"backup_targets": json.dumps([{"spec": {"include_namespaces": ["x"]}}])},
+    )
+
+    state_out = ctx.run(
+        ctx.on.config_changed(),
+        testing.State(
+            leader=True,
+            relations=[peer_relation, velero_relation, k8s_relation],
+        ),
+    )
+
+    assert state_out.unit_status.name == "active"
+    velero_rel_out = state_out.get_relation(velero_relation.id)
+    assert "spec" not in velero_rel_out.local_app_data
+
+
+def test_get_backup_targets_skips_missing_spec(ctx, peer_relation):
+    """Test get_backup_targets skips relations without backup_targets field."""
+    velero_relation = Relation(endpoint=VELERO_BACKUP_RELATION)
+    k8s_relation = Relation(
+        endpoint=K8S_BACKUP_TARGET_RELATION,
+        remote_app_name="target-app",
+        remote_app_data={},
     )
 
     state_out = ctx.run(

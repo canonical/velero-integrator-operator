@@ -3,6 +3,7 @@
 
 """Unit tests for VeleroIntegratorCharm."""
 
+from conftest import backup_target_app_data
 from ops import testing
 from scenario import Relation
 
@@ -53,12 +54,7 @@ def test_manual_backup_mode(ctx, peer_relation):
     generic_relation = Relation(
         endpoint=K8S_BACKUP_TARGET_RELATION,
         remote_app_name="target-app",
-        remote_app_data={
-            "app": "target-app",
-            "model": "test-model",
-            "relation_name": "backup",
-            "spec": '{"include_namespaces": ["test-namespace"]}',
-        },
+        remote_app_data=backup_target_app_data(),
     )
 
     # Act
@@ -82,12 +78,7 @@ def test_schedule_active(ctx, peer_relation):
     generic_relation = Relation(
         endpoint=K8S_BACKUP_TARGET_RELATION,
         remote_app_name="target-app",
-        remote_app_data={
-            "app": "target-app",
-            "model": "test-model",
-            "relation_name": "backup",
-            "spec": '{"include_namespaces": ["test-namespace"]}',
-        },
+        remote_app_data=backup_target_app_data(),
     )
 
     # Act
@@ -112,12 +103,7 @@ def test_schedule_paused(ctx, peer_relation):
     generic_relation = Relation(
         endpoint=K8S_BACKUP_TARGET_RELATION,
         remote_app_name="target-app",
-        remote_app_data={
-            "app": "target-app",
-            "model": "test-model",
-            "relation_name": "backup",
-            "spec": '{"include_namespaces": ["test-namespace"]}',
-        },
+        remote_app_data=backup_target_app_data(),
     )
 
     # Act
@@ -172,12 +158,9 @@ def test_forward_backup_spec(ctx, peer_relation):
     generic_relation = Relation(
         endpoint=K8S_BACKUP_TARGET_RELATION,
         remote_app_name="target-app",
-        remote_app_data={
-            "app": "target-app",
-            "model": "test-model",
-            "relation_name": "backup",
-            "spec": '{"include_namespaces": ["test-namespace"], "ttl": "24h"}',
-        },
+        remote_app_data=backup_target_app_data(
+            spec={"include_namespaces": ["test-namespace"], "ttl": "24h"}
+        ),
     )
 
     # Act
@@ -214,12 +197,7 @@ def test_relation_changed_triggers_reconcile(ctx, peer_relation):
     generic_relation = Relation(
         endpoint=K8S_BACKUP_TARGET_RELATION,
         remote_app_name="target-app",
-        remote_app_data={
-            "app": "target-app",
-            "model": "test-model",
-            "relation_name": "backup",
-            "spec": '{"include_namespaces": ["test-namespace"]}',
-        },
+        remote_app_data=backup_target_app_data(),
     )
 
     # Act
@@ -236,18 +214,13 @@ def test_relation_changed_triggers_reconcile(ctx, peer_relation):
 
 
 def test_no_spec_data_skips_forwarding(ctx, peer_relation):
-    """Test that relations without spec data are skipped."""
+    """Test that relations without valid backup_targets data are skipped."""
     # Arrange
     velero_relation = Relation(endpoint=VELERO_BACKUP_RELATION)
     generic_relation = Relation(
         endpoint=K8S_BACKUP_TARGET_RELATION,
         remote_app_name="target-app",
-        remote_app_data={
-            "app": "target-app",
-            "model": "test-model",
-            "relation_name": "backup",
-            # No 'spec' field
-        },
+        remote_app_data={},
     )
 
     # Act

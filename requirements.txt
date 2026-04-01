@@ -1,4 +1,5 @@
 annotated-types==0.7.0 ; python_version >= "3.12" and python_version < "4.0"
+charmlibs-interfaces-k8s-backup-target==0.1.0.post0 ; python_version >= "3.12" and python_version < "4.0"
 data-platform-helpers==0.1.7 ; python_version >= "3.12" and python_version < "4.0"
 importlib-metadata==8.7.1 ; python_version >= "3.12" and python_version < "4.0"
 markdown-it-py==4.0.0 ; python_version >= "3.12" and python_version < "4.0"

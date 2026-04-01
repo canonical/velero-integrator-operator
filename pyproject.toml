@@ -10,6 +10,7 @@ python = "^3.12"
 ops = "^3.0.0"
 pydantic = "^2.11.3"
 data-platform-helpers = "^0.1.0"
+charmlibs-interfaces-k8s-backup-target = "~=0.1.0"
 
 # Testing tools configuration
 [tool.coverage.run]
@@ -40,7 +41,7 @@ lint.extend-ignore = [
     "D413",
 ]
 lint.ignore = ["D107"]
-extend-exclude = ["__pycache__", "*.egg_info"]
+extend-exclude = ["__pycache__", "*.egg_info", "lib"]
 lint.per-file-ignores = {"tests/*" = ["D100","D101","D102","D103","D104"]}
 
 [tool.ruff.lint.mccabe]
