@@ -3,6 +3,9 @@ name: CI
 
 on:
   workflow_call:
+    secrets:
+      CHARMCRAFT_CREDENTIALS:
+        required: true
 
 jobs:
 
@@ -12,12 +15,10 @@ jobs:
 
     steps:
     - name: Check out code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y python3-pip tox
+      run: sudo apt-get install python3-pip tox
 
     - name: Lint code
       run: tox -e lint
@@ -28,12 +29,10 @@ jobs:
 
     steps:
     - name: Check out code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y python3-pip tox
+      run: sudo apt-get install python3-pip tox
 
     - name: Run unit tests
       run: tox -e unit
@@ -44,18 +43,15 @@ jobs:
 
     steps:
     - name: Check out repo
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
-    - name: Set up Python 3.12
+    - name: Set up Python 3.13
       uses: actions/setup-python@v5
       with:
-        python-version: "3.12"
+        python-version: 3.13
 
     - name: Setup operator environment
       run: |
-        sudo apt-get remove -y docker-ce docker-ce-cli containerd.io || true
-        sudo rm -rf /run/containerd || true
-
         python -m pip install --upgrade pip
         python -m pip install tox
 
@@ -88,18 +84,15 @@ jobs:
 
     steps:
     - name: Check out repo
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
-    - name: Set up Python 3.12
+    - name: Set up Python 3.13
       uses: actions/setup-python@v5
       with:
-        python-version: "3.12"
+        python-version: 3.13
 
     - name: Setup operator environment
       run: |
-        sudo apt-get remove -y docker-ce docker-ce-cli containerd.io || true
-        sudo rm -rf /run/containerd || true
-
         python -m pip install --upgrade pip
         python -m pip install tox
 
