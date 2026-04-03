@@ -81,3 +81,56 @@ jobs:
     - name: Get velero-integrator logs
       run: juju debug-log --replay --include velero-integrator/0
       if: failure()
+
+  integration-e2e:
+    name: E2E Integration Test
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@v5
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Setup operator environment
+      run: |
+        sudo apt-get remove -y docker-ce docker-ce-cli containerd.io || true
+        sudo rm -rf /run/containerd || true
+
+        python -m pip install --upgrade pip
+        python -m pip install tox
+
+        sudo snap install --classic concierge
+        sudo concierge prepare -p k8s
+
+    - name: Run e2e integration tests
+      run: tox -e integration-e2e
+      env:
+        CI: "true"
+
+    # On failure, capture debugging resources
+    - name: Get all
+      run: kubectl get all -A
+      if: failure()
+
+    - name: Describe Velero resources
+      run: |
+        kubectl describe schedules.velero.io -A || true
+        kubectl describe backups.velero.io -A || true
+        kubectl describe backupstoragelocations.velero.io -A || true
+      if: failure()
+
+    - name: Get juju status
+      run: juju status
+      if: failure()
+
+    - name: Get velero-integrator logs
+      run: juju debug-log --replay --include velero-integrator/0
+      if: failure()
+
+    - name: Get velero-operator logs
+      run: juju debug-log --replay --include velero-operator/0
+      if: failure()

@@ -6,24 +6,36 @@
 import json
 import logging
 from pathlib import Path
+from typing import Dict, Optional
 
 import jubilant
 import yaml
+from lightkube import ApiError, Client
+from lightkube.generic_resource import create_namespaced_resource
+from tenacity import (
+    Retrying,
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    stop_after_delay,
+    wait_fixed,
+)
 
 logger = logging.getLogger(__name__)
 
 METADATA = yaml.safe_load(Path("charmcraft.yaml").read_text())
 APP_NAME = METADATA["name"]
 TEST_APP_NAME = "test-app-velero-integrator"
-MINIO_APP_NAME = "minio"
 VELERO_OPERATOR_APP_NAME = "velero-operator"
 
 TEST_APP_RELATION_NAME = "backup-config"
 INTEGRATOR_K8S_BACKUP_RELATION = "k8s-backup-target"
 INTEGRATOR_VELERO_BACKUP_RELATION = "velero-backup"
 VELERO_OPERATOR_BACKUP_RELATION = "velero-backups"
-MINIO_S3_RELATION = "s3"
 VELERO_S3_RELATION = "s3-credentials"
+
+S3_INTEGRATOR = "s3-integrator"
+S3_INTEGRATOR_CHANNEL = "latest/stable"
 
 
 def get_app_status(juju: jubilant.Juju, app_name: str) -> tuple[str, str]:
@@ -150,3 +162,58 @@ def is_relation_joined(juju: jubilant.Juju, app_name: str, relation_name: str) -
         return False
     relations = app.relations.get(relation_name, [])
     return len(relations) > 0
+
+
+# --- Velero K8s resource helpers ---
+
+
+@retry(stop=stop_after_delay(60), wait=wait_fixed(2), reraise=True)
+def k8s_get_velero_schedule(
+    client: Client,
+    schedule_name: str,
+    namespace: str,
+) -> Dict:
+    """Get a Velero Schedule CR by name."""
+    schedule = create_namespaced_resource(
+        group="velero.io", version="v1", kind="Schedule", plural="schedules"
+    )
+    try:
+        return client.get(schedule, name=schedule_name, namespace=namespace)
+    except ApiError as e:
+        if e.status.code == 404:
+            assert False, f"Schedule {schedule_name} not found in namespace {namespace}"
+        raise
+
+
+def k8s_list_velero_schedules(
+    client: Client,
+    namespace: str,
+    labels: Optional[Dict[str, str]] = None,
+) -> list:
+    """List Velero Schedule CRs in a namespace, optionally filtered by labels."""
+    schedule = create_namespaced_resource(
+        group="velero.io", version="v1", kind="Schedule", plural="schedules"
+    )
+    return list(client.list(schedule, namespace=namespace, labels=labels))
+
+
+def wait_for_schedule_count(
+    client: Client,
+    namespace: str,
+    labels: Dict[str, str],
+    expected_count: int,
+) -> list:
+    """Wait until the expected number of Schedule CRs exist. Returns the schedules."""
+    schedules = []
+    for attempt in Retrying(
+        stop=stop_after_attempt(30),
+        wait=wait_fixed(2),
+        retry=retry_if_exception_type(AssertionError),
+        reraise=True,
+    ):
+        with attempt:
+            schedules = k8s_list_velero_schedules(client, namespace, labels=labels)
+            assert (
+                len(schedules) == expected_count
+            ), f"Expected {expected_count} schedules, found {len(schedules)}"
+    return schedules
