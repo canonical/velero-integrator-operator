@@ -41,7 +41,6 @@ logger = logging.getLogger(__name__)
 
 TIMEOUT = 600
 VELERO_OPERATOR_CHANNEL = "edge"
-VELERO_OPERATOR_REVISION = 442
 
 
 def _get_model_name(juju: jubilant.Juju) -> str:
@@ -82,7 +81,6 @@ def test_build_and_deploy_e2e(
         VELERO_OPERATOR_APP_NAME,
         app=VELERO_OPERATOR_APP_NAME,
         channel=VELERO_OPERATOR_CHANNEL,
-        revision=VELERO_OPERATOR_REVISION,
         trust=True,
     )
 
