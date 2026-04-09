@@ -19,6 +19,7 @@ description: |
   (defined by target apps) from "when to backup" (defined by operators).
 
 links:
+  documentation: https://discourse.charmhub.io/t/velero-integrator-operator-documentation/20149
   issues:
   - https://github.com/canonical/velero-integrator-operator/issues
   source:
