@@ -1,0 +1,31 @@
+# Copyright 2026 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+type: charm
+platforms:
+  ubuntu@24.04:amd64:
+parts:
+  charm:
+    plugin: charm
+
+name: test-app-velero-integrator
+description: |
+  Test application charm for velero-integrator integration tests.
+summary: |
+  This charm is only meant to be used for testing the k8s_backup_target
+  interface in the velero-integrator charm.
+
+config:
+  options:
+    namespace:
+      description: "Namespace to include in backup spec"
+      default: "test-namespace"
+      type: string
+    ttl:
+      description: "TTL for backups"
+      default: "24h"
+      type: string
+
+requires:
+  backup-config:
+    interface: k8s_backup_target

@@ -1,0 +1,21 @@
+name: On Push
+
+on:
+  push:
+    branches:
+    - main
+    - track/**
+
+jobs:
+
+  tests:
+    name: Run Tests
+    uses: ./.github/workflows/check.yaml
+    secrets: inherit
+
+  # publish runs in series with tests, and only publishes if tests passes
+  publish-charm:
+    name: Publish Charm
+    needs: tests
+    uses: ./.github/workflows/publish.yaml
+    secrets: inherit
