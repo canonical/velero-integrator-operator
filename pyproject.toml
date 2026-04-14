@@ -90,7 +90,7 @@ ruff = "^0.8.0"
 codespell = "^2.3.0"
 pyright = "^1.1.400"
 black = "^25.0.0"
-pytest = "^8.3.3"
+pytest = "^9.0.3"
 
 # unit tests
 [tool.poetry.group.unit]
@@ -98,7 +98,7 @@ optional = true
 
 [tool.poetry.group.unit.dependencies]
 coverage = { extras = ["toml"], version = ">7.0" }
-pytest = "^8.3.3"
+pytest = "^9.0.3"
 ops = { version = "^3.0.0", extras = ["testing"] }
 
 # integration tests
@@ -106,7 +106,7 @@ ops = { version = "^3.0.0", extras = ["testing"] }
 optional = true
 
 [tool.poetry.group.integration.dependencies]
-pytest = "^8.3.3"
+pytest = "^9.0.3"
 jubilant = "^1.7.0"
 boto3 = "^1.35.0"
 lightkube = "^0.15.0"
