@@ -68,5 +68,7 @@ peers:
 provides:
   k8s-backup-target:
     interface: k8s_backup_target
+    optional: true
   velero-backup:
     interface: velero_backup_config
+    optional: false

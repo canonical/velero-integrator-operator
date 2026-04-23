@@ -8,3 +8,4 @@ status-detail:
       type: boolean
       default: false
       description: a boolean indicating whether a unit should recompute all statuses.
+  additionalProperties: false
